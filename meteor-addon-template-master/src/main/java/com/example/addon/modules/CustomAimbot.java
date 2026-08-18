@@ -1,1 +1,74 @@
-package com.example.addon.modules;`n`nimport meteordevelopment.meteorclient.events.world.TickEvent;`nimport meteordevelopment.meteorclient.settings.DoubleSetting;`nimport meteordevelopment.meteorclient.settings.Setting;`nimport meteordevelopment.meteorclient.settings.SettingGroup;`nimport meteordevelopment.meteorclient.systems.modules.Categories;`nimport meteordevelopment.meteorclient.systems.modules.Module;`nimport meteordevelopment.orbit.EventHandler;`nimport net.minecraft.entity.player.PlayerEntity;`nimport net.minecraft.util.math.Vec3d;`n`npublic class CustomAimbot extends Module {`n    private final SettingGroup sgGeneral = settings.getDefaultGroup();`n`n    private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()`n        .name("menzil-blok")`n        .description("Aimbot un oyunculari takip edecegi maksimum blok mesafesi.")`n        .defaultValue(6.0)`n        .min(1.0)`n        .max(64.0)`n        .sliderMax(30.0)`n        .build()`n    );`n`n    public CustomAimbot() {`n        super(Categories.Combat, "custom-aimbot", "Menzil icindeki oyunculari otomatik takip eder.");`n    }`n`n    @EventHandler`n    private void onTick(TickEvent.Pre event) {`n        if (mc.player == null || mc.world == null) return;`n        PlayerEntity target = getClosestPlayer();`n        if (target != null) lookAtPlayer(target);`n    }`n`n    private PlayerEntity getClosestPlayer() {`n        PlayerEntity closest = null;`n        double minDistance = range.get();`n        for (PlayerEntity player : mc.world.getPlayers()) {`n            if (player == mc.player || player.isSpectator() || !player.isAlive()) continue;`n            double distance = mc.player.distanceTo(player);`n            if (distance <= minDistance) {`n                minDistance = distance;`n                closest = player;`n            }`n        }`n        return closest;`n    }`n`n    private void lookAtPlayer(PlayerEntity target) {`n        Vec3d targetPos = target.getEyePos();`n        Vec3d playerPos = mc.player.getEyePos();`n        double diffX = targetPos.x - playerPos.x;`n        double diffY = targetPos.y - playerPos.y;`n        double diffZ = targetPos.z - playerPos.z;`n        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);`n        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90F;`n        float pitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));`n        mc.player.setYaw(yaw);`n        mc.player.setPitch(pitch);`n    }`n}
+package com.example.addon.modules;
+
+import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.settings.DoubleSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.systems.modules.Categories;
+import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.orbit.EventHandler;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.Vec3d;
+
+public class CustomAimbot extends Module {
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Double> range = sgGeneral.add(new DoubleSetting.Builder()
+        .name("menzil-blok")
+        .description("Aimbot un oyunculari takip edecegi maksimum blok mesafesi.")
+        .defaultValue(6.0)
+        .min(1.0)
+        .max(64.0)
+        .sliderMax(30.0)
+        .build()
+    );
+
+    public CustomAimbot() {
+        super(Categories.Combat, "custom-aimbot", "Menzil icindeki oyunculari otomatik takip eder.");
+    }
+
+    @EventHandler
+    private void onTick(TickEvent.Pre event) {
+        if (mc.player == null || mc.world == null) return;
+
+        PlayerEntity target = getClosestPlayer();
+
+        if (target != null) {
+            lookAtPlayer(target);
+        }
+    }
+
+    private PlayerEntity getClosestPlayer() {
+        PlayerEntity closest = null;
+        double minDistance = range.get();
+
+        for (PlayerEntity player : mc.world.getPlayers()) {
+            if (player == mc.player || player.isSpectator() || !player.isAlive()) continue;
+
+            double distance = mc.player.distanceTo(player);
+            if (distance <= minDistance) {
+                minDistance = distance;
+                closest = player;
+            }
+        }
+
+        return closest;
+    }
+
+    private void lookAtPlayer(PlayerEntity target) {
+        Vec3d targetPos = target.getEyePos();
+        Vec3d playerPos = mc.player.getEyePos();
+
+        double diffX = targetPos.x - playerPos.x;
+        double diffY = targetPos.y - playerPos.y;
+        double diffZ = targetPos.z - playerPos.z;
+
+        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
+
+        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90F;
+        float pitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
+
+        mc.player.setYaw(yaw);
+        mc.player.setPitch(pitch);
+    }
+}
