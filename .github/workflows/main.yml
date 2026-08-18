@@ -17,12 +17,13 @@ jobs:
           
       - name: Build with Gradle
         run: |
-          cd meteor-eklenti-sablonu-ana
+          BUILD_DIR=$(find . -maxdepth 2 -name "gradlew" -exec dirname {} \;)
+          cd "$BUILD_DIR"
           chmod +x gradlew
-          ./gradlew build
+          ./gradlew build --no-daemon
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: meteor-addon
-          path: meteor-eklenti-sablonu-ana/build/libs/*.jar
+          path: '**/build/libs/*.jar'
